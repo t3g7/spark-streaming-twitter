@@ -12,8 +12,8 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-core" % "1.5.1" % "provided",
   "org.apache.spark" %% "spark-streaming" % "1.5.1" % "provided",
   "org.apache.spark" %% "spark-streaming-twitter" % "1.5.1",
-  "org.twitter4j" % "twitter4j-core" % "3.0.3",
-  "org.twitter4j" % "twitter4j-stream" % "3.0.3"
+  "org.twitter4j" % "twitter4j-core" % "3.0.6",
+  "org.twitter4j" % "twitter4j-stream" % "3.0.6"
 )
 
 // META-INF discarding
