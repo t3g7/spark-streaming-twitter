@@ -23,7 +23,7 @@ object Streamer {
 
     val filters = Seq("orange", "orange_france", "sosh", "sosh_fr", "orange_conseil")
 
-    val stream = TwitterUtils.createStream(ssc, None, filters)
+    val stream = TwitterUtils.createStream(ssc, None, filters).filter(_.getLang == "fr")
 
     // Statuses
     val statuses = stream.map(status => status.getText())
