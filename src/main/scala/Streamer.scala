@@ -21,12 +21,16 @@ object Streamer {
     val conf = new SparkConf().setMaster("local[2]").setAppName("WordCount")
     val ssc = new StreamingContext(conf, Seconds(1))
 
-    val filters = Seq("orange_france","france")
+    val filters = Seq("orange", "orange_france", "sosh", "sosh_fr", "orange_conseil")
 
     val stream = TwitterUtils.createStream(ssc, None, filters)
 
+    // Statuses
     val statuses = stream.map(status => status.getText())
     statuses.print()
+
+    // Hashtags
+    /*
     val hashTags = stream.flatMap(status => status.getText.split(" ").filter(_.startsWith("#")))
 
     val topCounts60 = hashTags.map((_, 1)).reduceByKeyAndWindow(_ + _, Seconds(60))
@@ -39,6 +43,7 @@ object Streamer {
       println("\nPopular topics in last 60 seconds (%s total):".format(rdd.count()))
       topList.foreach{case (count, tag) => println("%s (%s tweets)".format(tag, count))}
     })
+    */
 
     ssc.start()
     ssc.awaitTermination()
