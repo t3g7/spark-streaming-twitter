@@ -1,6 +1,7 @@
 import org.apache.spark._
 import org.apache.spark.streaming._
 import org.apache.spark.streaming.twitter._
+import com.datastax.spark.connector.streaming._
 
 import scala.io.Source._
 
@@ -18,7 +19,11 @@ object Streamer {
 
     configureTwitterCredentials()
 
-    val conf = new SparkConf().setMaster("local[2]").setAppName("WordCount")
+    val conf = new SparkConf()
+                      .setMaster("local[2]")
+                      .setAppName("TwitterStreamer")
+                      .set("spark.cassandra.connection.host", "localhost")
+
     val ssc = new StreamingContext(conf, Seconds(1))
 
     val filters = Seq("orange", "orange_france", "sosh", "sosh_fr", "orange_conseil")
@@ -26,8 +31,7 @@ object Streamer {
     val stream = TwitterUtils.createStream(ssc, None, filters).filter(_.getLang == "fr")
 
     // Statuses
-    val statuses = stream.map(status => status.getText())
-    statuses.print()
+    val statuses = stream.map(status => status.getText).saveToCassandra("twitter_streaming", "tweets")
 
     // Hashtags
     /*
