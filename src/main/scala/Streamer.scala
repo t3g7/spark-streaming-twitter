@@ -1,9 +1,12 @@
+import com.datastax.spark.connector.SomeColumns
 import org.apache.spark._
-import org.apache.spark.streaming._
-import org.apache.spark.streaming.twitter._
+import org.apache.spark.streaming.twitter.TwitterUtils
+import org.apache.spark.streaming.{Time, Seconds, StreamingContext}
+import org.joda.time.{DateTimeZone, DateTime}
 import com.datastax.spark.connector.streaming._
 
 import scala.io.Source._
+
 
 object Streamer {
   def configureTwitterCredentials() = {
@@ -23,33 +26,21 @@ object Streamer {
                       .setMaster("local[2]")
                       .setAppName("TwitterStreamer")
                       .set("spark.cassandra.connection.host", "localhost")
-
     val ssc = new StreamingContext(conf, Seconds(1))
 
     val filters = Seq("orange", "orange_france", "sosh", "sosh_fr", "orange_conseil")
-
     val stream = TwitterUtils.createStream(ssc, None, filters).filter(_.getLang == "fr")
 
-    // Statuses
-    val statuses = stream.map(status => status.getText).saveToCassandra("twitter_streaming", "tweets")
+    stream.map(t => t.getText)
+      .countByValueAndWindow(Seconds(5), Seconds(5))
+      .transform((rdd, time) => rdd.map { case (term, count) => (term, count, now(time))})
+      .saveToCassandra("twitter_streaming", "tweets", SomeColumns("body", "mentions", "interval"))
 
-    // Hashtags
-    /*
-    val hashTags = stream.flatMap(status => status.getText.split(" ").filter(_.startsWith("#")))
-
-    val topCounts60 = hashTags.map((_, 1)).reduceByKeyAndWindow(_ + _, Seconds(60))
-      .map{case (topic, count) => (count, topic)}
-      .transform(_.sortByKey(false))
-
-    // Print popular hashtags
-    topCounts60.foreachRDD(rdd => {
-      val topList = rdd.take(5)
-      println("\nPopular topics in last 60 seconds (%s total):".format(rdd.count()))
-      topList.foreach{case (count, tag) => println("%s (%s tweets)".format(tag, count))}
-    })
-    */
-
+    ssc.checkpoint("./checkpoint")
     ssc.start()
     ssc.awaitTermination()
   }
+
+  private def now(time: Time): String =
+    new DateTime(time.milliseconds, DateTimeZone.UTC ).toString("yyyyMMddHH:mm:ss")
 }
