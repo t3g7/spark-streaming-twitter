@@ -1,10 +1,9 @@
 lazy val root = (project in file(".")).
   settings(
-    name := "spark-streaming-test",
-    version := "1.0",
-    scalaVersion := "2.11.7",
-
-    mainClass in Compile := Some("Streamer")
+    name := "spark-streaming-twitter",
+    version := "0.1",
+    scalaVersion := "2.10.4",
+    mainClass in Compile := Some("TwitterStreamingApp")
   )
 
 libraryDependencies ++= Seq(
@@ -14,7 +13,9 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-streaming" % "1.5.1" % "provided",
   "org.apache.spark" %% "spark-streaming-twitter" % "1.5.1",
   "org.twitter4j" % "twitter4j-core" % "3.0.6",
-  "org.twitter4j" % "twitter4j-stream" % "3.0.6"
+  "org.twitter4j" % "twitter4j-stream" % "3.0.6",
+  "com.datastax.spark" %% "spark-cassandra-connector" % "1.5.0-M2",
+  "org.scalatest" %% "scalatest" % "2.2.4" % "test"
 )
 
 // META-INF discarding

@@ -1,50 +1,46 @@
-import org.apache.spark._
-import org.apache.spark.streaming._
-import org.apache.spark.streaming.twitter._
+import java.text.SimpleDateFormat
 
-import scala.io.Source._
+import com.datastax.spark.connector.streaming._
+import com.datastax.spark.connector.SomeColumns
+import org.apache.spark.streaming.StreamingContext
+import org.apache.spark.streaming.twitter.TwitterUtils
 
-object Streamer {
-  def configureTwitterCredentials() = {
-    val file = getClass().getResourceAsStream("twitter_credentials.txt")
-    for (line <- fromInputStream(file).getLines()) {
-      val key :: value :: _ = line.replace(" ","").split("=").toList
-      val fullKey = "twitter4j.oauth." + key;
-      System.setProperty(fullKey, value)
-    }
-  }
+class Streamer {
 
-  def main(args: Array[String]) {
-
-    configureTwitterCredentials()
-
-    val conf = new SparkConf().setMaster("local[2]").setAppName("WordCount")
-    val ssc = new StreamingContext(conf, Seconds(1))
+  /**
+   * Filters with keywords, extract tweet properties, save to cassandra and start StreamingContext
+   * @param ssc
+   * @param keyspace
+   * @param table
+   */
+  def start(ssc: StreamingContext, keyspace: String, table: String) {
 
     val filters = Seq("orange", "orange_france", "sosh", "sosh_fr", "orange_conseil")
-
     val stream = TwitterUtils.createStream(ssc, None, filters).filter(_.getLang == "fr")
 
-    // Statuses
-    val statuses = stream.map(status => status.getText())
-    statuses.print()
+    val timestampFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 
-    // Hashtags
-    /*
-    val hashTags = stream.flatMap(status => status.getText.split(" ").filter(_.startsWith("#")))
+    val tweet = stream
+      .filter(_.isRetweet == false)
+      .map { t => (
+          t.getText,
+          t.getUser.getId,
+          t.getUser.getScreenName,
+          t.getLang,
+          timestampFormat.format(t.getCreatedAt),
+          t.getFavoriteCount,
+          t.getRetweetCount,
+          t.getId,
+          t.getUserMentionEntities.map(_.getScreenName).mkString(",").split(",").toList,
+          t.getHashtagEntities.map(_.getText).mkString(",").split(",").toList,
+          t.getURLEntities.map(_.getExpandedURL).mkString(",").split(",").toList
+        )
+      }
 
-    val topCounts60 = hashTags.map((_, 1)).reduceByKeyAndWindow(_ + _, Seconds(60))
-      .map{case (topic, count) => (count, topic)}
-      .transform(_.sortByKey(false))
+    tweet.print()
+    tweet.saveToCassandra(keyspace, table, SomeColumns("body", "user_id", "user_screen_name", "lang", "created_at", "favorite_count", "retweet_count", "tweet_id", "user_mentions", "hashtags", "urls"))
 
-    // Print popular hashtags
-    topCounts60.foreachRDD(rdd => {
-      val topList = rdd.take(5)
-      println("\nPopular topics in last 60 seconds (%s total):".format(rdd.count()))
-      topList.foreach{case (count, tag) => println("%s (%s tweets)".format(tag, count))}
-    })
-    */
-
+    ssc.checkpoint("./checkpoint")
     ssc.start()
     ssc.awaitTermination()
   }
