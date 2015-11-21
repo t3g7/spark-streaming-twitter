@@ -14,7 +14,8 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-streaming-twitter" % "1.5.1",
   "org.twitter4j" % "twitter4j-core" % "3.0.6",
   "org.twitter4j" % "twitter4j-stream" % "3.0.6",
-  "com.datastax.spark" %% "spark-cassandra-connector" % "1.5.0-M2"
+  "com.datastax.spark" %% "spark-cassandra-connector" % "1.5.0-M2",
+  "org.scalatest" %% "scalatest" % "2.2.4" % "test"
 )
 
 // META-INF discarding
