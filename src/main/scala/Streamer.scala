@@ -1,46 +1,47 @@
-import com.datastax.spark.connector.SomeColumns
-import org.apache.spark._
-import org.apache.spark.streaming.twitter.TwitterUtils
-import org.apache.spark.streaming.{Time, Seconds, StreamingContext}
-import org.joda.time.{DateTimeZone, DateTime}
+import java.text.SimpleDateFormat
+
 import com.datastax.spark.connector.streaming._
+import com.datastax.spark.connector.SomeColumns
+import org.apache.spark.streaming.StreamingContext
+import org.apache.spark.streaming.twitter.TwitterUtils
 
-import scala.io.Source._
+class Streamer {
 
-
-object Streamer {
-  def configureTwitterCredentials() = {
-    val file = getClass().getResourceAsStream("twitter_credentials.txt")
-    for (line <- fromInputStream(file).getLines()) {
-      val key :: value :: _ = line.replace(" ","").split("=").toList
-      val fullKey = "twitter4j.oauth." + key;
-      System.setProperty(fullKey, value)
-    }
-  }
-
-  def main(args: Array[String]) {
-
-    configureTwitterCredentials()
-
-    val conf = new SparkConf()
-                      .setMaster("local[2]")
-                      .setAppName("TwitterStreamer")
-                      .set("spark.cassandra.connection.host", "localhost")
-    val ssc = new StreamingContext(conf, Seconds(1))
+  /**
+   * Filters with keywords, extract tweet properties, save to cassandra and start StreamingContext
+   * @param ssc
+   * @param keyspace
+   * @param table
+   */
+  def start(ssc: StreamingContext, keyspace: String, table: String) {
 
     val filters = Seq("orange", "orange_france", "sosh", "sosh_fr", "orange_conseil")
     val stream = TwitterUtils.createStream(ssc, None, filters).filter(_.getLang == "fr")
 
-    stream.map(t => t.getText)
-      .countByValueAndWindow(Seconds(5), Seconds(5))
-      .transform((rdd, time) => rdd.map { case (term, count) => (term, count, now(time))})
-      .saveToCassandra("twitter_streaming", "tweets", SomeColumns("body", "mentions", "interval"))
+    val timestampFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+
+    val tweet = stream
+      .filter(_.isRetweet == false)
+      .map { t => (
+          t.getText,
+          t.getUser.getId,
+          t.getUser.getScreenName,
+          t.getLang,
+          timestampFormat.format(t.getCreatedAt),
+          t.getFavoriteCount,
+          t.getRetweetCount,
+          t.getId,
+          t.getUserMentionEntities.map(_.getScreenName).mkString(",").split(",").toList,
+          t.getHashtagEntities.map(_.getText).mkString(",").split(",").toList,
+          t.getURLEntities.map(_.getExpandedURL).mkString(",").split(",").toList
+        )
+      }
+
+    tweet.print()
+    tweet.saveToCassandra(keyspace, table, SomeColumns("body", "user_id", "user_screen_name", "lang", "created_at", "favorite_count", "retweet_count", "tweet_id", "user_mentions", "hashtags", "urls"))
 
     ssc.checkpoint("./checkpoint")
     ssc.start()
     ssc.awaitTermination()
   }
-
-  private def now(time: Time): String =
-    new DateTime(time.milliseconds, DateTimeZone.UTC ).toString("yyyyMMddHH:mm:ss")
 }
