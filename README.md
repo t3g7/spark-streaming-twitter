@@ -1,4 +1,4 @@
-# Spark Streaming test
+# Spark Streaming Twitter App [![Build Status](https://travis-ci.org/t3g7/spark-streaming-twitter.svg)](https://travis-ci.org/t3g7/spark-streaming-twitter)
 
 ### Configuration
 Import Twitter API credentials into ```src/main/resources```
