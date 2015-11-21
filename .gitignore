@@ -16,6 +16,10 @@ project/plugins/project/
 .scala_dependencies
 .worksheet
 
+# IntelliJ Idea
+.idea/
+*.iml
+
 ### OSX ###
 .DS_Store
 .AppleDouble
@@ -42,3 +46,4 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+
