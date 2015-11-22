@@ -1,0 +1,4 @@
+Version 0.1
+---------------------
+22/11/15 : Added saveToCassandra functionnality with useful tweet properties
+           Added a dummy test
