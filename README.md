@@ -1,4 +1,4 @@
-# Spark Streaming Twitter App [![Build Status](https://travis-ci.org/t3g7/spark-streaming-twitter.svg)](https://travis-ci.org/t3g7/spark-streaming-twitter)
+# Spark Streaming Twitter App [![Build Status](https://travis-ci.org/t3g7/spark-streaming-twitter.svg)](https://travis-ci.org/t3g7/spark-streaming-twitter) [![Codacy Badge](https://api.codacy.com/project/badge/grade/cdc422e76c8a4a5698642a2fc421e1d1)](https://www.codacy.com/app/b-fovet/spark-streaming-twitter)
 
 ### Configuration
 Import Twitter API credentials into ```src/main/resources```
