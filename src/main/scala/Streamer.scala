@@ -5,6 +5,8 @@ import com.datastax.spark.connector.SomeColumns
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.twitter.TwitterUtils
 
+import utils.SentimentAnalysisUtils._
+
 class Streamer {
 
   /**
@@ -33,12 +35,13 @@ class Streamer {
           t.getId,
           t.getUserMentionEntities.map(_.getScreenName).mkString(",").split(",").toList,
           t.getHashtagEntities.map(_.getText).mkString(",").split(",").toList,
-          t.getURLEntities.map(_.getExpandedURL).mkString(",").split(",").toList
+          t.getURLEntities.map(_.getExpandedURL).mkString(",").split(",").toList,
+          detectSentiment(t.getText).toString
         )
       }
 
     tweet.print()
-    tweet.saveToCassandra(keyspace, table, SomeColumns("body", "user_id", "user_screen_name", "lang", "created_at", "favorite_count", "retweet_count", "tweet_id", "user_mentions", "hashtags", "urls"))
+    tweet.saveToCassandra(keyspace, table, SomeColumns("body", "user_id", "user_screen_name", "lang", "created_at", "favorite_count", "retweet_count", "tweet_id", "user_mentions", "hashtags", "urls", "sentiment"))
 
     ssc.checkpoint("./checkpoint")
     ssc.start()

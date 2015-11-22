@@ -1,6 +1,6 @@
 import com.datastax.spark.connector.cql.CassandraConnector
 import org.apache.spark.streaming.{Seconds, StreamingContext}
-import org.apache.spark.{SparkContext, SparkConf}
+import org.apache.spark.{SparkConf, SparkContext}
 
 /**
  * Set Twitter credentials in src/main/resources/twitter_credentials.txt
@@ -61,7 +61,8 @@ object TwitterStreamingApp {
           user_mentions list<text>,
           hashtags list<text>,
           urls list<text>,
-          PRIMARY KEY (body, user_id, tweet_id, user_screen_name)
+          sentiment text,
+          PRIMARY KEY (body, user_id, tweet_id, user_screen_name, sentiment)
         )"""
       )
     }
