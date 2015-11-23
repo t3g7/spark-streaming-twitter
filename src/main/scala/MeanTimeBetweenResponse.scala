@@ -10,7 +10,6 @@ object MeanTimeBetweenResponse {
 
     if(tweetid != null){
       if(inreplaystatusid != null){
-
       }
     }
 

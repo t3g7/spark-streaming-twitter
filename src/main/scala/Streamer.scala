@@ -40,8 +40,7 @@ class Streamer {
       }
 
     tweet.print()
-//    tweet.saveToCassandra(keyspace, table, SomeColumns("body", "user_id", "user_screen_name", "lang", "created_at", "favorite_count", "retweet_count", "tweet_id", "user_mentions", "hashtags", "urls"))
-
+    tweet.saveToCassandra(keyspace, table, SomeColumns("body", "user_id", "user_screen_name", "lang", "created_at", "favorite_count", "retweet_count", "tweet_id", "user_mentions", "hashtags", "urls"))
     ssc.checkpoint("./checkpoint")
     ssc.start()
     ssc.awaitTermination()
