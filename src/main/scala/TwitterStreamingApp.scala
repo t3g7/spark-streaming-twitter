@@ -36,7 +36,7 @@ object TwitterStreamingApp {
   val ssc = new StreamingContext(sc, Seconds(1))
 
   def main(args: Array[String]): Unit = {
-    setUpCassandra()
+//    setUpCassandra()
 
     val stream = new Streamer
     stream.start(ssc, "twitter_streaming", "tweets")

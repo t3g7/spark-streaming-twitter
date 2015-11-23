@@ -4,6 +4,7 @@ import com.datastax.spark.connector.streaming._
 import com.datastax.spark.connector.SomeColumns
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.twitter.TwitterUtils
+import MeanTimeBetweenResponse.getTweets
 
 class Streamer {
 
@@ -31,6 +32,7 @@ class Streamer {
           t.getFavoriteCount,
           t.getRetweetCount,
           t.getId,
+          t.getInReplyToStatusId,
           t.getUserMentionEntities.map(_.getScreenName).mkString(",").split(",").toList,
           t.getHashtagEntities.map(_.getText).mkString(",").split(",").toList,
           t.getURLEntities.map(_.getExpandedURL).mkString(",").split(",").toList
@@ -38,7 +40,7 @@ class Streamer {
       }
 
     tweet.print()
-    tweet.saveToCassandra(keyspace, table, SomeColumns("body", "user_id", "user_screen_name", "lang", "created_at", "favorite_count", "retweet_count", "tweet_id", "user_mentions", "hashtags", "urls"))
+//    tweet.saveToCassandra(keyspace, table, SomeColumns("body", "user_id", "user_screen_name", "lang", "created_at", "favorite_count", "retweet_count", "tweet_id", "user_mentions", "hashtags", "urls"))
 
     ssc.checkpoint("./checkpoint")
     ssc.start()
