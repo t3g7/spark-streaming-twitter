@@ -4,7 +4,7 @@
 Import Twitter API credentials into ```src/main/resources```
 
 ### Building
-Create the JAR with ```sbt assembly```, which is now located in ```target/scala-2.10/spark-streaming-twitter-assembly-$VERSION.jar```.
+Create the JAR with ```sbt -J-Xms2048m -J-Xmx4096m assembly```, which is now located in ```target/scala-2.10/spark-streaming-twitter-assembly-$VERSION.jar```.
 
 ### Running the app
 Note: a Cassandra instance must be running.
