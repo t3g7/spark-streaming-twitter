@@ -1,4 +1,4 @@
-import java.text.SimpleDateFormat
+import com.datastax.spark.connector.cql.CassandraConnector
 
 /**
   * Created by maxime on 23/11/15.
@@ -6,14 +6,16 @@ import java.text.SimpleDateFormat
 
 object MeanTimeBetweenResponse {
 
-  def getTweets(tweetid: Long, date: SimpleDateFormat, inreplaystatusid: Long){
+  def getTweets(){
 
-    if(tweetid != null){
-      if(inreplaystatusid != null){
+      CassandraConnector(TwitterStreamingApp.conf).withSessionDo { session =>
+        val it = Iterator (session.execute("SELECT reply_id FROM twitter_streaming.tweets WHERE reply_id > -1 ALLOW FILTERING"))
+//        val reply_id = session.execute("SELECT reply_id FROM twitter_streaming.tweets WHERE reply_id > -1 ALLOW FILTERING")
+        while(it.hasNext){
+          it.next()
+          print(it.next().one().toString)
+        }
       }
-    }
-
-
 
   }
 

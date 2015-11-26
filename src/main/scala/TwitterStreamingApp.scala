@@ -59,9 +59,11 @@ object TwitterStreamingApp {
           retweet_count int,
           tweet_id bigint,
           user_mentions list<text>,
+          reply_id bigint,
           hashtags list<text>,
           urls list<text>,
-          PRIMARY KEY (body, user_id, tweet_id, user_screen_name)
+          mean_time text,
+          PRIMARY KEY (body, reply_id, user_id, user_screen_name)
         )"""
       )
     }

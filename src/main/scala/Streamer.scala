@@ -35,12 +35,15 @@ class Streamer {
           t.getInReplyToStatusId,
           t.getUserMentionEntities.map(_.getScreenName).mkString(",").split(",").toList,
           t.getHashtagEntities.map(_.getText).mkString(",").split(",").toList,
-          t.getURLEntities.map(_.getExpandedURL).mkString(",").split(",").toList
+          t.getURLEntities.map(_.getExpandedURL).mkString(",").split(",").toList,
+          getTweets()
         )
       }
 
+
+
     tweet.print()
-    tweet.saveToCassandra(keyspace, table, SomeColumns("body", "user_id", "user_screen_name", "lang", "created_at", "favorite_count", "retweet_count", "tweet_id", "user_mentions", "hashtags", "urls"))
+    tweet.saveToCassandra(keyspace, table, SomeColumns("body", "user_id", "user_screen_name", "lang", "created_at", "favorite_count", "retweet_count", "tweet_id", "reply_id", "user_mentions", "hashtags", "urls", "mean_time"))
     ssc.checkpoint("./checkpoint")
     ssc.start()
     ssc.awaitTermination()
