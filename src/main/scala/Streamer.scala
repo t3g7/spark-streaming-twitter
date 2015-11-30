@@ -4,6 +4,7 @@ import com.datastax.spark.connector.streaming._
 import com.datastax.spark.connector.SomeColumns
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.twitter.TwitterUtils
+import twitter4j.{FilterQuery, TwitterStreamFactory}
 import MeanTimeBetweenResponse.getTweets
 
 class Streamer {
