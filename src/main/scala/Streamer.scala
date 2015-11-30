@@ -10,15 +10,14 @@ class Streamer {
   /**
    * Filters with keywords, extract tweet properties, save to cassandra and start StreamingContext
    * @param ssc
-   * @param keyspace
-   * @param table
    */
-  def start(ssc: StreamingContext, keyspace: String, table: String) {
+  def start(ssc: StreamingContext) {
 
     val filters = Seq("orange", "orange_france", "sosh", "sosh_fr", "orange_conseil")
     val stream = TwitterUtils.createStream(ssc, None, filters).filter(_.getLang == "fr")
 
-    val timestampFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+    val timestampFormatBySecond = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+    val timestampFormatByMinute = new SimpleDateFormat("yyyy-MM-dd HH:mm")
 
     val tweet = stream
       .filter(_.isRetweet == false)
@@ -27,7 +26,7 @@ class Streamer {
           t.getUser.getId,
           t.getUser.getScreenName,
           t.getLang,
-          timestampFormat.format(t.getCreatedAt),
+          timestampFormatBySecond.format(t.getCreatedAt),
           t.getFavoriteCount,
           t.getRetweetCount,
           t.getId,
@@ -38,7 +37,18 @@ class Streamer {
       }
 
     tweet.print()
-    tweet.saveToCassandra(keyspace, table, SomeColumns("body", "user_id", "user_screen_name", "lang", "created_at", "favorite_count", "retweet_count", "tweet_id", "user_mentions", "hashtags", "urls"))
+    tweet.saveToCassandra("twitter_streaming", "tweets", SomeColumns("body", "user_id", "user_screen_name", "lang", "created_at", "favorite_count", "retweet_count", "tweet_id", "user_mentions", "hashtags", "urls"))
+
+    val count = 0
+    val freq = stream
+      .filter(_.isRetweet == false)
+      .map { t => (
+        timestampFormatByMinute.format(t.getCreatedAt),
+        count + 1
+        )
+      }
+
+    freq.saveToCassandra("twitter_streaming", "freq", SomeColumns("date", "count"))
 
     ssc.checkpoint("./checkpoint")
     ssc.start()
