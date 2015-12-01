@@ -13,7 +13,14 @@ class Streamer {
    */
   def start(ssc: StreamingContext) {
 
+    // Select some words, accounts or hashtags to stream
     val filters = Seq("orange", "orange_france", "sosh", "sosh_fr", "orange_conseil")
+
+    // Filter out tweets containing off topic words or hashtags
+    val offTopicWords = Seq("jus", "juice", "alert", "alerte", "OINTB", "#OINTB", "black", "vigilance")
+    val offTopicHashtags = Seq("#alert", "#alerte", "#vigilance", "#OINTB", "OrangeIsTheNewBlack")
+    val offTopicFilters = offTopicWords ++ offTopicHashtags
+
     val stream = TwitterUtils.createStream(ssc, None, filters).filter(_.getLang == "fr")
 
     val timestampFormatBySecond = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
@@ -21,6 +28,7 @@ class Streamer {
 
     val tweet = stream
       .filter(_.isRetweet == false)
+      .filter(_.getText.split(" ").exists(offTopicFilters contains _) == false)
       .map { t => (
           t.getText,
           t.getUser.getId,
@@ -42,6 +50,7 @@ class Streamer {
     val count = 0
     val freq = stream
       .filter(_.isRetweet == false)
+      .filter(_.getText.split(" ").exists(offTopicFilters contains _) == false)
       .map { t => (
         timestampFormatByMinute.format(t.getCreatedAt),
         count + 1
