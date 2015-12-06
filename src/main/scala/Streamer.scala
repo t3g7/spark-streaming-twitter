@@ -5,8 +5,9 @@ import com.datastax.spark.connector.SomeColumns
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.twitter.TwitterUtils
 import MeanTimeBetweenResponse.getTweets
+import StatusStreamer.main
 
-class Streamer {
+class Streamer{
 
   /**
    * Filters with keywords, extract tweet properties, save to cassandra and start StreamingContext
@@ -33,17 +34,15 @@ class Streamer {
           t.getRetweetCount,
           t.getId,
           t.getInReplyToStatusId,
+          getTweets(ssc,keyspace,table,t.getInReplyToStatusId,timestampFormat.format(t.getCreatedAt)),
           t.getUserMentionEntities.map(_.getScreenName).mkString(",").split(",").toList,
           t.getHashtagEntities.map(_.getText).mkString(",").split(",").toList,
-          t.getURLEntities.map(_.getExpandedURL).mkString(",").split(",").toList,
-          getTweets()
+          t.getURLEntities.map(_.getExpandedURL).mkString(",").split(",").toList
         )
       }
 
-
-
     tweet.print()
-    tweet.saveToCassandra(keyspace, table, SomeColumns("body", "user_id", "user_screen_name", "lang", "created_at", "favorite_count", "retweet_count", "tweet_id", "reply_id", "user_mentions", "hashtags", "urls", "mean_time"))
+    tweet.saveToCassandra(keyspace, table, SomeColumns("body", "user_id", "user_screen_name", "lang", "created_at", "favorite_count", "retweet_count", "tweet_id", "reply_id", "mean_time", "user_mentions", "hashtags", "urls"))
     ssc.checkpoint("./checkpoint")
     ssc.start()
     ssc.awaitTermination()
