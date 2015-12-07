@@ -1,13 +1,14 @@
 import java.text.SimpleDateFormat
+import org.joda.time.DateTime
 
 import com.datastax.spark.connector.streaming._
 import com.datastax.spark.connector.SomeColumns
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.twitter.TwitterUtils
 import MeanTimeBetweenResponse.getTweets
-import StatusStreamer.main
 
-class Streamer{
+
+class Streamer extends Serializable{
 
   /**
    * Filters with keywords, extract tweet properties, save to cassandra and start StreamingContext
@@ -22,6 +23,15 @@ class Streamer{
 
     val timestampFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 
+//    val cassandraRDD = ssc.cassandraTable(keyspace, table).select("created_at").where("tweet_id = ?",1234567 )
+//    val dstream = new ConstantInputDStream(ssc, cassandraRDD)
+//
+//    def getTweets(inReplyToStatusId: Long, createdAt: String){
+//      dstream.foreachRDD { rdd =>
+//        println(rdd.collect.mkString("\n"))
+//      }
+//    }
+
     val tweet = stream
       .filter(_.isRetweet == false)
       .map { t => (
@@ -34,7 +44,8 @@ class Streamer{
           t.getRetweetCount,
           t.getId,
           t.getInReplyToStatusId,
-          getTweets(ssc,keyspace,table,t.getInReplyToStatusId,timestampFormat.format(t.getCreatedAt)),
+          getTweets(t.getInReplyToStatusId,new DateTime(t.getCreatedAt)),
+//          "coucou",
           t.getUserMentionEntities.map(_.getScreenName).mkString(",").split(",").toList,
           t.getHashtagEntities.map(_.getText).mkString(",").split(",").toList,
           t.getURLEntities.map(_.getExpandedURL).mkString(",").split(",").toList
