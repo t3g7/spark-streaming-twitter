@@ -63,7 +63,7 @@ object TwitterStreamingApp {
           mean_time text,
           hashtags list<text>,
           urls list<text>,
-          PRIMARY KEY (body, reply_id, user_id, user_screen_name)
+          PRIMARY KEY (body, tweet_id, user_id, user_screen_name)
         )"""
       )
     }
