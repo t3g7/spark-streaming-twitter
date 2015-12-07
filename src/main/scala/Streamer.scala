@@ -23,15 +23,6 @@ class Streamer extends Serializable{
 
     val timestampFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 
-//    val cassandraRDD = ssc.cassandraTable(keyspace, table).select("created_at").where("tweet_id = ?",1234567 )
-//    val dstream = new ConstantInputDStream(ssc, cassandraRDD)
-//
-//    def getTweets(inReplyToStatusId: Long, createdAt: String){
-//      dstream.foreachRDD { rdd =>
-//        println(rdd.collect.mkString("\n"))
-//      }
-//    }
-
     val tweet = stream
       .filter(_.isRetweet == false)
       .map { t => (
@@ -44,8 +35,7 @@ class Streamer extends Serializable{
           t.getRetweetCount,
           t.getId,
           t.getInReplyToStatusId,
-          getTweets(t.getInReplyToStatusId,new DateTime(t.getCreatedAt)),
-//          "coucou",
+          getTweets(TwitterStreamingApp.conf, t.getInReplyToStatusId,new DateTime(t.getCreatedAt)),
           t.getUserMentionEntities.map(_.getScreenName).mkString(",").split(",").toList,
           t.getHashtagEntities.map(_.getText).mkString(",").split(",").toList,
           t.getURLEntities.map(_.getExpandedURL).mkString(",").split(",").toList
