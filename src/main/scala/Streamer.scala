@@ -40,7 +40,16 @@ class Streamer {
         )
       }
 
-    tweet.print()
+    val token_test = stream
+      .filter(_.isRetweet == false)
+      .map { t => (
+          tokenize(t.getText)
+        )
+      }
+
+    token_test.print()
+
+    //tweet.print()
     tweet.saveToCassandra(keyspace, table, SomeColumns("body", "user_id", "user_screen_name", "lang", "created_at", "favorite_count", "retweet_count", "tweet_id", "user_mentions", "hashtags", "urls", "sentiment"))
 
     ssc.checkpoint("./checkpoint")

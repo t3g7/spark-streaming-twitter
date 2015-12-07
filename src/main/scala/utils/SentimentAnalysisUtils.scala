@@ -1,16 +1,42 @@
 package utils
 
 import java.util.Properties
+import java.io.StringReader
 
 import edu.stanford.nlp.ling.CoreAnnotations
 import edu.stanford.nlp.neural.rnn.RNNCoreAnnotations
 import edu.stanford.nlp.pipeline.StanfordCoreNLP
 import edu.stanford.nlp.sentiment.SentimentCoreAnnotations
 
+import org.apache.lucene.analysis.fr.FrenchAnalyzer
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute
+
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ListBuffer
+import scala.collection.mutable
 
 object SentimentAnalysisUtils {
+
+  /*def detectSentimentFrench(message: String): SENTIMENT_TYPE = {
+    val stopWords = getClass().getResourceAsStream("dictionnaries/stop-words-fr.txt")
+  }*/
+
+  def tokenize(content: String): Unit = {
+    val stringReader = new StringReader(content)
+    val analyzer = new FrenchAnalyzer()
+
+    val stream = analyzer.tokenStream("content", stringReader)
+    val term = stream.addAttribute(classOf[CharTermAttribute])
+    stream.reset()
+
+    val result = mutable.ArrayBuffer.empty[String]
+    while(stream.incrementToken()) {
+      result += term.toString
+    }
+
+    println(result)
+  }
+
   val nlpProps = {
     val props = new Properties()
     props.setProperty("annotators", "tokenize, ssplit, pos, lemma, parse, sentiment")

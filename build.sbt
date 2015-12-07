@@ -17,7 +17,9 @@ libraryDependencies ++= Seq(
   "com.datastax.spark" %% "spark-cassandra-connector" % "1.5.0-M2",
   "org.scalatest" %% "scalatest" % "2.2.4" % "test",
   "edu.stanford.nlp" % "stanford-corenlp" % "3.5.2",
-  "edu.stanford.nlp" % "stanford-corenlp" % "3.5.2" classifier "models"
+  "edu.stanford.nlp" % "stanford-corenlp" % "3.5.2" classifier "models",
+  "org.apache.lucene" % "lucene-core" % "5.3.1",
+  "org.apache.lucene" % "lucene-analyzers-common" % "5.3.1"
 )
 
 // META-INF discarding
