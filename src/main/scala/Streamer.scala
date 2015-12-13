@@ -8,7 +8,7 @@ import org.apache.spark.streaming.twitter.TwitterUtils
 import MeanTimeBetweenResponse.getResponseTime
 
 
-class Streamer extends Serializable{
+class Streamer extends Serializable {
 
   /**
    * Filters with keywords, extract tweet properties, save to cassandra and start StreamingContext
@@ -18,19 +18,28 @@ class Streamer extends Serializable{
    */
   def start(ssc: StreamingContext, keyspace: String, table: String) {
 
+    // Select some words, accounts or hashtags to stream
     val filters = Seq("orange", "orange_france", "sosh", "sosh_fr", "orange_conseil")
+
+    // Filter out tweets containing off topic words or hashtags
+    val offTopicWords = Seq("jus", "juice", "alert", "alerte", "OINTB", "#OINTB", "black", "vigilance")
+    val offTopicHashtags = Seq("#alert", "#alerte", "#vigilance", "#OINTB", "OrangeIsTheNewBlack")
+    val offTopicFilters = offTopicWords ++ offTopicHashtags
+
     val stream = TwitterUtils.createStream(ssc, None, filters).filter(_.getLang == "fr")
 
-    val timestampFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+    val timestampFormatBySecond = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+    val timestampFormatByMinute = new SimpleDateFormat("yyyy-MM-dd HH:mm")
 
     val tweet = stream
       .filter(_.isRetweet == false)
+      .filter(_.getText.split(" ").exists(offTopicFilters contains _) == false)
       .map { t => (
           t.getText,
           t.getUser.getId,
           t.getUser.getScreenName,
           t.getLang,
-          timestampFormat.format(t.getCreatedAt),
+          timestampFormatBySecond.format(t.getCreatedAt),
           t.getFavoriteCount,
           t.getRetweetCount,
           t.getId,
@@ -44,6 +53,19 @@ class Streamer extends Serializable{
 
     tweet.print()
     tweet.saveToCassandra(keyspace, table, SomeColumns("body", "user_id", "user_screen_name", "lang", "created_at", "favorite_count", "retweet_count", "tweet_id", "reply_id", "mean_time", "user_mentions", "hashtags", "urls"))
+
+    val count = 0
+    val freq = stream
+      .filter(_.isRetweet == false)
+      .filter(_.getText.split(" ").exists(offTopicFilters contains _) == false)
+      .map { t => (
+        timestampFormatByMinute.format(t.getCreatedAt),
+        count + 1
+        )
+      }
+
+    freq.saveToCassandra("twitter_streaming", "freq", SomeColumns("date", "count"))
+
     ssc.checkpoint("./checkpoint")
     ssc.start()
     ssc.awaitTermination()

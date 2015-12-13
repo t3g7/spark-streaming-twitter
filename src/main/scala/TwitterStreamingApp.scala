@@ -39,7 +39,7 @@ object TwitterStreamingApp {
     setUpCassandra()
 
     val stream = new Streamer
-    stream.start(ssc, "twitter_streaming", "tweets")
+    stream.start(ssc, "twitter_streaming", "tweets");
   }
 
   /**
@@ -64,6 +64,13 @@ object TwitterStreamingApp {
           hashtags list<text>,
           urls list<text>,
           PRIMARY KEY (body, tweet_id, user_id, user_screen_name)
+        )"""
+      )
+      session.execute("""
+        CREATE TABLE IF NOT EXISTS twitter_streaming.freq (
+          date timestamp,
+          count counter,
+          PRIMARY KEY (date)
         )"""
       )
     }
