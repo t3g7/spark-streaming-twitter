@@ -3,13 +3,8 @@ import org.apache.spark.SparkConf
 import org.joda.time.format.PeriodFormatterBuilder
 import org.joda.time.{DateTime, Period}
 
-//
-///**
-//  * Created by maxime on 23/11/15.
-//  */
-//
 object MeanTimeBetweenResponse{
-//
+
   def getTweets(conf : SparkConf, inReplyToStatusId : Long, timestamp : DateTime ): String = {
 
       if(inReplyToStatusId > 0){
