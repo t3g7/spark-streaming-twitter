@@ -33,13 +33,13 @@ object TwitterStreamingApp {
     .setAppName("TwitterStreamingApp")
     .set("spark.cassandra.connection.host", "localhost")
   val sc = new SparkContext(conf)
-  val ssc = new StreamingContext(sc, Seconds(1))
+  val ssc = new StreamingContext(sc, Seconds(5))
 
   def main(args: Array[String]): Unit = {
     setUpCassandra()
 
     val stream = new Streamer
-    stream.start(ssc)
+    stream.start(ssc, "twitter_streaming", "tweets");
   }
 
   /**
@@ -59,9 +59,11 @@ object TwitterStreamingApp {
           retweet_count int,
           tweet_id bigint,
           user_mentions list<text>,
+          reply_id bigint,
+          mean_time text,
           hashtags list<text>,
           urls list<text>,
-          PRIMARY KEY (body, user_id, tweet_id, user_screen_name)
+          PRIMARY KEY (body, tweet_id, user_id, user_screen_name)
         )"""
       )
       session.execute("""

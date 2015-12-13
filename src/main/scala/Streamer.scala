@@ -1,17 +1,22 @@
 import java.text.SimpleDateFormat
+import org.joda.time.DateTime
 
 import com.datastax.spark.connector.streaming._
 import com.datastax.spark.connector.SomeColumns
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.twitter.TwitterUtils
+import MeanTimeBetweenResponse.getResponseTime
 
-class Streamer {
+
+class Streamer extends Serializable {
 
   /**
    * Filters with keywords, extract tweet properties, save to cassandra and start StreamingContext
    * @param ssc
+   * @param keyspace
+   * @param table
    */
-  def start(ssc: StreamingContext) {
+  def start(ssc: StreamingContext, keyspace: String, table: String) {
 
     // Select some words, accounts or hashtags to stream
     val filters = Seq("orange", "orange_france", "sosh", "sosh_fr", "orange_conseil")
@@ -38,6 +43,8 @@ class Streamer {
           t.getFavoriteCount,
           t.getRetweetCount,
           t.getId,
+          t.getInReplyToStatusId,
+          getResponseTime(TwitterStreamingApp.conf, t.getInReplyToStatusId, new DateTime(t.getCreatedAt)),
           t.getUserMentionEntities.map(_.getScreenName).mkString(",").split(",").toList,
           t.getHashtagEntities.map(_.getText).mkString(",").split(",").toList,
           t.getURLEntities.map(_.getExpandedURL).mkString(",").split(",").toList
@@ -45,7 +52,7 @@ class Streamer {
       }
 
     tweet.print()
-    tweet.saveToCassandra("twitter_streaming", "tweets", SomeColumns("body", "user_id", "user_screen_name", "lang", "created_at", "favorite_count", "retweet_count", "tweet_id", "user_mentions", "hashtags", "urls"))
+    tweet.saveToCassandra(keyspace, table, SomeColumns("body", "user_id", "user_screen_name", "lang", "created_at", "favorite_count", "retweet_count", "tweet_id", "reply_id", "mean_time", "user_mentions", "hashtags", "urls"))
 
     val count = 0
     val freq = stream
