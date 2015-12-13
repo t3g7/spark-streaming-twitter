@@ -4,10 +4,8 @@ import org.joda.time.format.PeriodFormatterBuilder
 import org.joda.time.{DateTime, Period}
 
 object MeanTimeBetweenResponse{
-
-  def getTweets(conf : SparkConf, inReplyToStatusId : Long, timestamp : DateTime ): String = {
-
-      if(inReplyToStatusId > 0){
+  def getResponseTime(conf : SparkConf, inReplyToStatusId : Long, timestamp : DateTime ): String = {
+      if(inReplyToStatusId > 0) {
         CassandraConnector(conf).withSessionDo { session =>
           val reply_id = session.execute("SELECT created_at FROM twitter_streaming.tweets WHERE tweet_id="+ inReplyToStatusId +" ALLOW FILTERING")
           try {

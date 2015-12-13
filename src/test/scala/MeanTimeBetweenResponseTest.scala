@@ -49,7 +49,7 @@ class MeanTimeBetweenResponseTest extends FlatSpec with BeforeAndAfter with Give
 
   "Response time" should "be counted" in {
     Given("a tweet response")
-    val meanTime = MeanTimeBetweenResponse.getTweets(conf, 3258473, new DateTime(2015, 11, 30, 18, 28, 12, DateTimeZone.forID("Europe/Paris")))
+    val meanTime = MeanTimeBetweenResponse.getResponseTime(conf, 3258473, new DateTime(2015, 11, 30, 18, 28, 12, DateTimeZone.forID("Europe/Paris")))
     When("a corresponding question is found")
 
     Then("the date difference should match")
