@@ -1,4 +1,9 @@
+Version 0.2
+---------------------
+18/12/15 : - Get duration between a tweet and its response then store it in
+             the column "response_time" of the response tweet
+
 Version 0.1
 ---------------------
-22/11/15 : Added saveToCassandra functionnality with useful tweet properties
-           Added a dummy test
+22/11/15 : - Added saveToCassandra functionnality with useful tweet properties
+           - Added a dummy test

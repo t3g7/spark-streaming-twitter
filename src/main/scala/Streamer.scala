@@ -5,7 +5,7 @@ import com.datastax.spark.connector.streaming._
 import com.datastax.spark.connector.SomeColumns
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.twitter.TwitterUtils
-import MeanTimeBetweenResponse.getResponseTime
+import ResponseTime.getResponseTime
 
 
 class Streamer extends Serializable {
@@ -52,7 +52,7 @@ class Streamer extends Serializable {
       }
 
     tweet.print()
-    tweet.saveToCassandra(keyspace, table, SomeColumns("body", "user_id", "user_screen_name", "lang", "created_at", "favorite_count", "retweet_count", "tweet_id", "reply_id", "mean_time", "user_mentions", "hashtags", "urls"))
+    tweet.saveToCassandra(keyspace, table, SomeColumns("body", "user_id", "user_screen_name", "lang", "created_at", "favorite_count", "retweet_count", "tweet_id", "reply_id", "response_time", "user_mentions", "hashtags", "urls"))
 
     val count = 0
     val freq = stream

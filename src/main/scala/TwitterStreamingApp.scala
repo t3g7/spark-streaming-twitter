@@ -60,7 +60,7 @@ object TwitterStreamingApp {
           tweet_id bigint,
           user_mentions list<text>,
           reply_id bigint,
-          mean_time text,
+          response_time text,
           hashtags list<text>,
           urls list<text>,
           PRIMARY KEY (body, tweet_id, user_id, user_screen_name)

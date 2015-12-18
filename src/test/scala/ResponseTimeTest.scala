@@ -3,7 +3,7 @@ import org.apache.spark.SparkConf
 import org.joda.time.{DateTime, DateTimeZone}
 import org.scalatest._
 
-class MeanTimeBetweenResponseTest extends FlatSpec with BeforeAndAfter with GivenWhenThen with Matchers {
+class ResponseTimeTest extends FlatSpec with BeforeAndAfter with GivenWhenThen with Matchers {
   private val master = "local[2]"
   private val appName = "spark-streaming-twitter"
 
@@ -28,7 +28,7 @@ class MeanTimeBetweenResponseTest extends FlatSpec with BeforeAndAfter with Give
           tweet_id bigint,
           user_mentions list<text>,
           reply_id bigint,
-          mean_time text,
+          response_time text,
           hashtags list<text>,
           urls list<text>,
           PRIMARY KEY (body, tweet_id, user_id, user_screen_name)
@@ -37,7 +37,7 @@ class MeanTimeBetweenResponseTest extends FlatSpec with BeforeAndAfter with Give
       session.execute("CREATE INDEX IF NOT EXISTS ON twitter_streaming.tweets(tweet_id);")
 
       // Insert a mock question tweet for Sosh_fr
-      session.execute("INSERT INTO twitter_streaming.tweets (body, user_id, user_screen_name, lang, created_at, favorite_count, retweet_count, tweet_id, user_mentions, reply_id, mean_time, hashtags, urls) VALUES('@Sosh_fr Ceci est un test', 63721, 'user', 'fr', '2015-11-30 18:23:49+0100', 0, 0, 3258473, ['Sosh_fr'], null, null, [''], [''])")
+      session.execute("INSERT INTO twitter_streaming.tweets (body, user_id, user_screen_name, lang, created_at, favorite_count, retweet_count, tweet_id, user_mentions, reply_id, response_time, hashtags, urls) VALUES('@Sosh_fr Ceci est un test', 63721, 'user', 'fr', '2015-11-30 18:23:49+0100', 0, 0, 3258473, ['Sosh_fr'], null, null, [''], [''])")
     }
   }
 
@@ -49,11 +49,11 @@ class MeanTimeBetweenResponseTest extends FlatSpec with BeforeAndAfter with Give
 
   "Response time" should "be counted" in {
     Given("a tweet response")
-    val meanTime = MeanTimeBetweenResponse.getResponseTime(conf, 3258473, new DateTime(2015, 11, 30, 18, 28, 12, DateTimeZone.forID("Europe/Paris")))
+    val responseTime = ResponseTime.getResponseTime(conf, 3258473, new DateTime(2015, 11, 30, 18, 28, 12, DateTimeZone.forID("Europe/Paris")))
     When("a corresponding question is found")
 
     Then("the date difference should match")
-    println(meanTime)
-    meanTime should be ("00:04:23")
+    println(responseTime)
+    responseTime should be ("00:04:23")
   }
 }
