@@ -43,6 +43,7 @@ auxquels
 avant
 avec
 avoir
+c'
 car
 ce
 ceci
@@ -71,6 +72,7 @@ ci
 comme
 comment
 d'
+de
 dans
 des
 du
@@ -191,6 +193,7 @@ longtemps
 lorsque
 lui
 lui-même
+m'
 ma
 mais
 malgré
@@ -247,6 +250,7 @@ plus
 plutôt
 pourquoi
 puisque
+qu'
 qu
 quant
 quanta

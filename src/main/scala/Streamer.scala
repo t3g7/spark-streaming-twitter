@@ -36,17 +36,11 @@ class Streamer {
           t.getUserMentionEntities.map(_.getScreenName).mkString(",").split(",").toList,
           t.getHashtagEntities.map(_.getText).mkString(",").split(",").toList,
           t.getURLEntities.map(_.getExpandedURL).mkString(",").split(",").toList,
-          "null"//detectSentiment(t.getText).toString
+          detectSentiment(t.getText).toString
         )
       }
 
-    val token_test = stream
-      .filter(_.isRetweet == false)
-      .map { t => tokenize(t.getText) }
-
-    token_test.print()
-
-    //tweet.print()
+    tweet.print()
     tweet.saveToCassandra(keyspace, table, SomeColumns("body", "user_id", "user_screen_name", "lang", "created_at", "favorite_count", "retweet_count", "tweet_id", "user_mentions", "hashtags", "urls", "sentiment"))
 
     ssc.checkpoint("./checkpoint")
