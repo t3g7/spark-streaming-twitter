@@ -36,16 +36,13 @@ class Streamer {
           t.getUserMentionEntities.map(_.getScreenName).mkString(",").split(",").toList,
           t.getHashtagEntities.map(_.getText).mkString(",").split(",").toList,
           t.getURLEntities.map(_.getExpandedURL).mkString(",").split(",").toList,
-          detectSentiment(t.getText).toString
+          "null"//detectSentiment(t.getText).toString
         )
       }
 
     val token_test = stream
       .filter(_.isRetweet == false)
-      .map { t => (
-          tokenize(t.getText)
-        )
-      }
+      .map { t => tokenize(t.getText) }
 
     token_test.print()
 

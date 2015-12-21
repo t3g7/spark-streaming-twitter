@@ -33,7 +33,7 @@ object TwitterStreamingApp {
     .setAppName("TwitterStreamingApp")
     .set("spark.cassandra.connection.host", "localhost")
   val sc = new SparkContext(conf)
-  val ssc = new StreamingContext(sc, Seconds(1))
+  val ssc = new StreamingContext(sc, Seconds(2))
 
   def main(args: Array[String]): Unit = {
     setUpCassandra()

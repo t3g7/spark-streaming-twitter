@@ -1,40 +1,41 @@
 package utils
 
+import java.io.{InputStream, StringReader}
 import java.util.Properties
-import java.io.StringReader
 
+import edu.stanford.nlp.international.french.process.FrenchTokenizer
 import edu.stanford.nlp.ling.CoreAnnotations
 import edu.stanford.nlp.neural.rnn.RNNCoreAnnotations
 import edu.stanford.nlp.pipeline.StanfordCoreNLP
 import edu.stanford.nlp.sentiment.SentimentCoreAnnotations
 
-import org.apache.lucene.analysis.fr.FrenchAnalyzer
-import org.apache.lucene.analysis.tokenattributes.CharTermAttribute
-
 import scala.collection.JavaConversions._
-import scala.collection.mutable.ListBuffer
-import scala.collection.mutable
+import scala.collection.mutable.{ArrayBuffer, ListBuffer}
+import scala.io.Source._
 
 object SentimentAnalysisUtils {
 
-  /*def detectSentimentFrench(message: String): SENTIMENT_TYPE = {
-    val stopWords = getClass().getResourceAsStream("dictionnaries/stop-words-fr.txt")
-  }*/
+  val tokenizerFactory = FrenchTokenizer.ftbFactory()
+
+  def filterAndTokenizeFromStopWords(content: String, stopWords: Set[String]): Seq[String] = {
+    val stringReader = new StringReader(content)
+    val tokenizer = tokenizerFactory.getTokenizer(stringReader)
+
+    val tokens = new ArrayBuffer[String]()
+    tokenizer.filter(t => t.toString.length > 1 && !stopWords.contains(t.toString)).foreach(t => tokens += t.toString)
+
+    println(tokens)
+    tokens
+  }
 
   def tokenize(content: String): Unit = {
-    val stringReader = new StringReader(content)
-    val analyzer = new FrenchAnalyzer()
+    filterAndTokenizeFromStopWords(content, loadStopWords("/dictionnaries/stop-words.txt"))
+  }
 
-    val stream = analyzer.tokenStream("content", stringReader)
-    val term = stream.addAttribute(classOf[CharTermAttribute])
-    stream.reset()
-
-    val result = mutable.ArrayBuffer.empty[String]
-    while(stream.incrementToken()) {
-      result += term.toString
-    }
-
-    println(result)
+  def loadStopWords(path: String) = {
+    val stream: InputStream = getClass.getResourceAsStream(path)
+    val lines = fromInputStream(stream).getLines
+    lines.toSet
   }
 
   val nlpProps = {
