@@ -5,8 +5,9 @@ import com.datastax.spark.connector.streaming._
 import com.datastax.spark.connector.SomeColumns
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.twitter.TwitterUtils
-import ResponseTime.getResponseTime
 
+import ResponseTime.getResponseTime
+import utils.SentimentAnalysisUtils._
 
 class Streamer extends Serializable {
 
@@ -47,12 +48,13 @@ class Streamer extends Serializable {
           getResponseTime(TwitterStreamingApp.conf, t.getInReplyToStatusId, new DateTime(t.getCreatedAt)),
           t.getUserMentionEntities.map(_.getScreenName).mkString(",").split(",").toList,
           t.getHashtagEntities.map(_.getText).mkString(",").split(",").toList,
-          t.getURLEntities.map(_.getExpandedURL).mkString(",").split(",").toList
+          t.getURLEntities.map(_.getExpandedURL).mkString(",").split(",").toList,
+          detectSentiment(t.getText).toString
         )
       }
 
     tweet.print()
-    tweet.saveToCassandra(keyspace, table, SomeColumns("body", "user_id", "user_screen_name", "lang", "created_at", "favorite_count", "retweet_count", "tweet_id", "reply_id", "response_time", "user_mentions", "hashtags", "urls"))
+    tweet.saveToCassandra(keyspace, table, SomeColumns("body", "user_id", "user_screen_name", "lang", "created_at", "favorite_count", "retweet_count", "tweet_id", "reply_id", "response_time", "user_mentions", "hashtags", "urls", "sentiment"))
 
     val count = 0
     val freq = stream
