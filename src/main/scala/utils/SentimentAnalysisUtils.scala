@@ -47,8 +47,8 @@ object SentimentAnalysisUtils {
 
   def detectSentiment(text: String): SENTIMENT_TYPE = {
 
-    val posWordsSet = loadWordSet("/wordsets/pos-words-fr.txt")
-    val negWordsSet = loadWordSet("/wordsets/neg-words-fr.txt")
+    val posWordsSet = loadWordSet("/wordsets/pos-words.txt")
+    val negWordsSet = loadWordSet("/wordsets/neg-words.txt")
     val stopWordsSet = loadWordSet("/wordsets/stop-words.txt")
 
     val tokens = tokenize(text, stopWordsSet)
