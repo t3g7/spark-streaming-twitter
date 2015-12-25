@@ -1,9 +1,9 @@
 Version 0.3
 ---------------------
 25/12/15 : v0.3.1
-		   - Removed unused dependency (models from edu.stanford.nlp)
-		   - Add the possibility to pass Twitter API credentials as args
-		     if not set in twitter_credentials.txt
+	   - Removed unused dependency (models from edu.stanford.nlp)
+	   - Add the possibility to pass Twitter API credentials as args
+	     if not set in twitter_credentials.txt
 
 24/12/15 : - Compute sentiment for each tweets based on word sets
 
