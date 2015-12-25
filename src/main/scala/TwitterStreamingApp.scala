@@ -24,9 +24,6 @@ import org.apache.spark.{SparkConf, SparkContext}
 
 object TwitterStreamingApp {
 
-  // Set Twitter credentials
-  TwitterSettings.configureTwitterCredentials()
-
   // Set Spark configuration and context
   val conf = new SparkConf()
     .setMaster("local[2]")
@@ -37,6 +34,17 @@ object TwitterStreamingApp {
 
   def main(args: Array[String]): Unit = {
     setUpCassandra()
+
+    // Set Twitter credentials
+    if (args.length == 0) {
+      TwitterSettings.setTwitterCredentialsFromFile()
+    } else if (args.length < 4) {
+      System.err.println("Usage: TwitterStreamingApp <consumer key> <consumer secret> <access token> <access token secret> \n       Or set credentials in text file")
+      System.exit(1)
+    } else {
+      val Array(consumerKey, consumerSecret, accessToken, accessTokenSecret) = args.take(4)
+      TwitterSettings.setTwitterCredentialsFromArgs(consumerKey, consumerSecret, accessToken, accessTokenSecret)
+    }
 
     val stream = new Streamer
     stream.start(ssc, "twitter_streaming", "tweets");
