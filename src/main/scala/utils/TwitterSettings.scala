@@ -1,3 +1,5 @@
+package utils
+
 import scala.io.Source._
 
 object TwitterSettings {
