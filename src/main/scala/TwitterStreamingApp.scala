@@ -29,11 +29,10 @@ object TwitterStreamingApp {
     if (args.length == 0) {
       TwitterSettings.setTwitterCredentialsFromFile()
     } else if (args.length < 4) {
-      System.err.println("Usage: TwitterStreamingApp <consumer key> <consumer secret> <access token> <access token secret> \n       Or set credentials in text file")
+      System.err.println("Usage: TwitterStreamingApp --consumerKey <consumer key> --consumerSecret <consumer secret> --accessToken <access token> --accessTokenSecret <access token secret> \n       Or set credentials in text file")
       System.exit(1)
     } else {
-      val Array(consumerKey, consumerSecret, accessToken, accessTokenSecret) = args.take(4)
-      TwitterSettings.setTwitterCredentialsFromArgs(consumerKey, consumerSecret, accessToken, accessTokenSecret)
+      TwitterSettings.setTwitterCredentialsFromArgs(args)
     }
 
     val stream = new Streamer
