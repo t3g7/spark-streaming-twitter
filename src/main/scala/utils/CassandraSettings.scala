@@ -4,6 +4,11 @@ import com.datastax.spark.connector.cql.CassandraConnector
 import org.apache.spark.SparkConf
 
 object CassandraSettings {
+
+  /**
+    * Set up the keyspace and tables used for storing tweets
+    * @param conf
+    */
   def setUp(conf: SparkConf): Unit = {
     CassandraConnector(conf).withSessionDo { session =>
       session.execute("CREATE KEYSPACE IF NOT EXISTS twitter_streaming WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor': 1}")

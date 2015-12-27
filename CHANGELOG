@@ -1,9 +1,14 @@
 Version 0.3
 ---------------------
+27/12/15 : v0.3.2
+           - Moved TwitterSettings to utils package
+           - Moved setUpCassandra() to setUp() in utils.CassandraSettings
+           - Wrote documentation for each function
+
 25/12/15 : v0.3.1
-	   - Removed unused dependency (models from edu.stanford.nlp)
-	   - Add the possibility to pass Twitter API credentials as args
-	     if not set in twitter_credentials.txt
+           - Removed unused dependency (models from edu.stanford.nlp)
+           - Add the possibility to pass Twitter API credentials as args
+             if not set in twitter_credentials.txt
 
 24/12/15 : - Compute sentiment for each tweets based on word sets
 

@@ -12,7 +12,7 @@ import utils.SentimentAnalysisUtils._
 class Streamer extends Serializable {
 
   /**
-   * Filters with keywords, extract tweet properties, save to cassandra and start StreamingContext
+   * Filters with keywords, extract tweet properties, save to Cassandra and start StreamingContext
    * @param ssc
    * @param keyspace
    * @param table

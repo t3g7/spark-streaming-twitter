@@ -4,6 +4,14 @@ import org.joda.time.format.PeriodFormatterBuilder
 import org.joda.time.{DateTime, Period}
 
 object ResponseTime {
+
+  /**
+    * Compute the time difference between a stored tweet and its streamed response
+    * @param conf
+    * @param inReplyToStatusId
+    * @param timestamp
+    * @return a time difference
+    */
   def getResponseTime(conf : SparkConf, inReplyToStatusId : Long, timestamp : DateTime ): String = {
     if(inReplyToStatusId > 0) {
       CassandraConnector(conf).withSessionDo { session =>
