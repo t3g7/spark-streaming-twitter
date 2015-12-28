@@ -1,10 +1,13 @@
 package ml
 
+import java.text.SimpleDateFormat
+import java.util.Calendar
+
 import org.apache.spark.mllib.classification.NaiveBayes
 import org.apache.spark.mllib.feature.HashingTF
 import org.apache.spark.mllib.linalg.Vector
 import org.apache.spark.mllib.regression.LabeledPoint
-import org.apache.spark.{SparkContext, SparkConf}
+import org.apache.spark.{SparkConf, SparkContext}
 import utils.SentimentAnalysisUtils.loadWordSet
 
 object Train {
@@ -72,17 +75,20 @@ object Train {
     })
 
     if (args.length == 2) {
-      val savePath = args(1) + "/" + accuracy.toString
-      model.save(sc, args(1))
-      println("\n====== Model saved to: " + savePath + "\n")
+      val format = new SimpleDateFormat("yyyy-MM-dd'T'HHmmss")
+      val now = format.format(Calendar.getInstance().getTime())
+
+      val savePath = args(1) + "_" + now
+      model.save(sc, savePath)
+      println("\nModel saved to: " + savePath + "\n")
     }
 
     sc.stop()
-    println("\n====== Successfully stopped Spark Context, exiting.")
+    println("Successfully stopped Spark Context, exiting.")
   }
 
   def toLabels(line: String) = {
-    val col = line.split(',')
+    val col = line.split(';')
     (col(1), col(2))
   }
 
@@ -108,7 +114,7 @@ object Train {
     val t0 = System.nanoTime()
     val result = block
     val t1 = System.nanoTime()
-    println("\nElapsed time: " + (t1 - t0)/1000 + "ms")
+    println("Elapsed time: " + (t1 - t0)/1000 + "ms")
     result
   }
 }
