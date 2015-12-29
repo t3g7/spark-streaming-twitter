@@ -34,7 +34,6 @@ object Train {
     val training = splitData(0)
     val test = splitData(1)
 
-
     val training_labeled = training.map(x => toLabels(x)).
       map(t => (t._1, featurize(t._2))).
       map(x => new LabeledPoint((x._1).toDouble, x._2))
