@@ -3,7 +3,7 @@
 ### Configuration
 Import Twitter API credentials into `src/main/resources/twitter_credentials.txt` or pass them as arguments when launching the jar.
 
-	Usage: TwitterStreamingApp <consumer key> <consumer secret> <access token> <access token secret>
+	Usage: TwitterStreamingApp --consumerKey <consumer key> --consumerSecret <consumer secret> --accessToken <access token> --accessTokenSecret <access token secret>
        	   Or set credentials in text file
 
 ### Building
