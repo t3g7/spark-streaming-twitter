@@ -1,5 +1,6 @@
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.spark.{SparkConf, SparkContext}
+import org.elasticsearch.spark._
 import utils._
 
 /**
@@ -19,6 +20,7 @@ object TwitterStreamingApp {
     .setMaster("local[2]")
     .setAppName("TwitterStreamingApp")
     .set("spark.cassandra.connection.host", "localhost")
+    .set("es.index.auto.create", "true")
   val sc = new SparkContext(conf)
   val ssc = new StreamingContext(sc, Seconds(5))
 
@@ -36,6 +38,6 @@ object TwitterStreamingApp {
     }
 
     val stream = new Streamer
-    stream.start(ssc, "twitter_streaming", "tweets");
+    stream.start(sc, ssc, "twitter_streaming", "tweets");
   }
 }

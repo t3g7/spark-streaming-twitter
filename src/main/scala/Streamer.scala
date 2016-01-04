@@ -5,6 +5,9 @@ import com.datastax.spark.connector.streaming._
 import com.datastax.spark.connector.SomeColumns
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.twitter.TwitterUtils
+import org.apache.spark.SparkContext
+import org.apache.spark.SparkContext._
+import org.elasticsearch.spark._
 
 import ResponseTime.getResponseTime
 import utils.SentimentAnalysisUtils._
@@ -17,7 +20,7 @@ class Streamer extends Serializable {
    * @param keyspace
    * @param table
    */
-  def start(ssc: StreamingContext, keyspace: String, table: String) {
+  def start(sc: SparkContext, ssc: StreamingContext, keyspace: String, table: String) {
 
     // Select some words, accounts or hashtags to stream
     val filters = Seq("orange", "orange_france", "sosh", "sosh_fr", "orange_conseil")
@@ -68,6 +71,7 @@ class Streamer extends Serializable {
 
     freq.saveToCassandra("twitter_streaming", "freq", SomeColumns("date", "count"))
 
+    sc.makeRDD(Seq(tweet,freq)).saveToEs("spark/docs")
     ssc.checkpoint("./checkpoint")
     ssc.start()
     ssc.awaitTermination()
