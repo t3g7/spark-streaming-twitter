@@ -1,21 +1,17 @@
 import com.datastax.spark.connector.cql.CassandraConnector
 import org.apache.spark.SparkConf
-import org.joda.time.format.PeriodFormatterBuilder
-import org.joda.time.{Period, DateTime}
 
-/**
-  * Created by maxime on 04/01/16.
-  */
 object RetweetCount {
 
   /**
-    * Compute the time difference between a stored tweet and its streamed response
+    * Update the retweet count of a stored tweet
     * @param conf
     * @param retweetCount
     * @param tweetId
-    * @return a time difference
+    * @param userId
+    * @return
     */
-  def getRetweetCount(conf : SparkConf, retweetCount : Int, tweetId : Long, userId : Long ) {
+  def updateRetweetCount(conf: SparkConf, retweetCount: Int, tweetId: Long, userId: Long) {
       CassandraConnector(conf).withSessionDo { session =>
         val rep = session.execute("SELECT * FROM twitter_streaming.tweets WHERE tweet_id="+ tweetId.toString +" ALLOW FILTERING")
         if(!rep.all.isEmpty)

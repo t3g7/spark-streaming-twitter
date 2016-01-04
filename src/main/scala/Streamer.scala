@@ -7,7 +7,7 @@ import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.twitter.TwitterUtils
 
 import ResponseTime.getResponseTime
-import RetweetCount.getRetweetCount
+import RetweetCount.updateRetweetCount
 import utils.SentimentAnalysisUtils._
 
 class Streamer extends Serializable {
@@ -33,6 +33,7 @@ class Streamer extends Serializable {
     val timestampFormatBySecond = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
     val timestampFormatByMinute = new SimpleDateFormat("yyyy-MM-dd HH:mm")
 
+    // Stream tweets
     val tweet = stream
       .filter(_.isRetweet == false)
       .filter(_.getText.split(" ").exists(offTopicFilters contains _) == false)
@@ -57,27 +58,21 @@ class Streamer extends Serializable {
     tweet.print()
     tweet.saveToCassandra(keyspace, table, SomeColumns("body", "user_id", "user_screen_name", "lang", "created_at", "favorite_count", "retweet_count", "tweet_id", "reply_id", "response_time", "user_mentions", "hashtags", "urls", "sentiment"))
 
-
+    // Stream only retweets
     val rt = stream
       .filter(_.isRetweet == true)
       .filter(_.getText.split(" ").exists(offTopicFilters contains _) == false)
       .map { t =>
-        getRetweetCount(TwitterStreamingApp.conf,t.getRetweetedStatus.getRetweetCount, t.getRetweetedStatus.getId, t.getRetweetedStatus.getUser.getId)
-        }
-
-    rt.print()
-    //    CassandraConnector(TwitterStreamingApp.conf).withSessionDo { session =>
-    //      session.execute("UPDATE" + keyspace + "," + table + "SET retweet_count = " + rt.toString + "WHERE tweet_id=" +  + " ALLOW FILTERING")
-    //    }
-    //    rt.saveToCassandra(keyspace, table, SomeColumns("body","user_id", "user_screen_name", "tweet_id", "retweet_count", "sentiment"))
+        updateRetweetCount(TwitterStreamingApp.conf, t.getRetweetedStatus.getRetweetCount, t.getRetweetedStatus.getId, t.getRetweetedStatus.getUser.getId)
+      }
 
     val count = 0
     val freq = stream
       .filter(_.isRetweet == false)
       .filter(_.getText.split(" ").exists(offTopicFilters contains _) == false)
       .map { t => (
-        timestampFormatByMinute.format(t.getCreatedAt),
-        count + 1
+          timestampFormatByMinute.format(t.getCreatedAt),
+          count + 1
         )
       }
 
