@@ -7,6 +7,7 @@ import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.twitter.TwitterUtils
 
 import ResponseTime.getResponseTime
+import RetweetCount.getRetweetCount
 import utils.SentimentAnalysisUtils._
 
 class Streamer extends Serializable {
@@ -55,6 +56,20 @@ class Streamer extends Serializable {
 
     tweet.print()
     tweet.saveToCassandra(keyspace, table, SomeColumns("body", "user_id", "user_screen_name", "lang", "created_at", "favorite_count", "retweet_count", "tweet_id", "reply_id", "response_time", "user_mentions", "hashtags", "urls", "sentiment"))
+
+
+    val rt = stream
+      .filter(_.isRetweet == true)
+      .filter(_.getText.split(" ").exists(offTopicFilters contains _) == false)
+      .map { t =>
+        getRetweetCount(TwitterStreamingApp.conf,t.getRetweetedStatus.getRetweetCount, t.getRetweetedStatus.getId, t.getRetweetedStatus.getUser.getId)
+        }
+
+    rt.print()
+    //    CassandraConnector(TwitterStreamingApp.conf).withSessionDo { session =>
+    //      session.execute("UPDATE" + keyspace + "," + table + "SET retweet_count = " + rt.toString + "WHERE tweet_id=" +  + " ALLOW FILTERING")
+    //    }
+    //    rt.saveToCassandra(keyspace, table, SomeColumns("body","user_id", "user_screen_name", "tweet_id", "retweet_count", "sentiment"))
 
     val count = 0
     val freq = stream
