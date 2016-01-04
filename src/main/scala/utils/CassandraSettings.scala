@@ -28,7 +28,7 @@ object CassandraSettings {
           hashtags list<text>,
           urls list<text>,
           sentiment text,
-          PRIMARY KEY (body, user_id, tweet_id, user_screen_name, sentiment)
+          PRIMARY KEY (user_id, tweet_id)
         )"""
       )
       session.execute("""
