@@ -1,3 +1,4 @@
+a
 à
 â
 abord
@@ -34,7 +35,6 @@ avions
 aviez
 avaient
 aux
-aucun
 aussi
 autre
 autres
@@ -61,6 +61,7 @@ celui-là
 cependant
 certes
 ces
+c'est
 cet
 cette
 ceux
