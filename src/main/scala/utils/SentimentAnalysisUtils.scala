@@ -29,7 +29,6 @@ object SentimentAnalysisUtils {
         tokens += token
       }
     }
-
     println("DEBUG - tokens: " + tokens)
     tokens
   }
@@ -58,7 +57,6 @@ object SentimentAnalysisUtils {
         weight += 1
       }
     }
-
     weight
   }
 
@@ -77,12 +75,10 @@ object SentimentAnalysisUtils {
 
     val posWordWeight = countWeight(tokens, posWordsSet)
     val negWordWeight = countWeight(tokens, negWordsSet)
-
     println("DEBUG - pos weight: " + posWordWeight)
     println("DEBUG - neg weight: " + negWordWeight)
 
     val sentiment = posWordWeight - negWordWeight
-
     println("DEBUG - sentiment score = " + sentiment)
 
     sentiment match {
