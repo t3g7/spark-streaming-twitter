@@ -21,8 +21,8 @@ Run the following command to train the model with Random Forest classification:
 
 Based on the trained model with Naive Bayes classification, run: 
 
-    /bin/spark-submit --class ml.naivesbayes.PredictFromStreamNB $PATH_TO_JAR/spark-streaming-twitter-$VERSION.jar --consumerKey <consumerKey> --consumerSecret <consumerSecret> --accessToken <accessToken> --accessTokenSecret <accessTokenSecret> $ML_DATA_DIR/trainedModel
+    ./bin/spark-submit --class ml.naivesbayes.PredictFromStreamNB $PATH_TO_JAR/spark-streaming-twitter-$VERSION.jar --consumerKey <consumerKey> --consumerSecret <consumerSecret> --accessToken <accessToken> --accessTokenSecret <accessTokenSecret> $ML_DATA_DIR/trainedModel
     
 Based on the trained model with Random Forest classification, run: 
     
-    /bin/spark-submit --class ml.randomforest.PredictFromStreamRF $PATH_TO_JAR/spark-streaming-twitter-$VERSION.jar --consumerKey <consumerKey> --consumerSecret <consumerSecret> --accessToken <accessToken> --accessTokenSecret <accessTokenSecret> $ML_DATA_DIR/trainedModel
+    ./bin/spark-submit --class ml.randomforest.PredictFromStreamRF $PATH_TO_JAR/spark-streaming-twitter-$VERSION.jar --consumerKey <consumerKey> --consumerSecret <consumerSecret> --accessToken <accessToken> --accessTokenSecret <accessTokenSecret> $ML_DATA_DIR/trainedModel
