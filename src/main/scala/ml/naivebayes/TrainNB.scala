@@ -1,4 +1,4 @@
-package ml
+package ml.naivebayes
 
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -8,21 +8,18 @@ import org.apache.spark.mllib.feature.HashingTF
 import org.apache.spark.mllib.linalg.Vector
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.{SparkConf, SparkContext}
-import utils.SentimentAnalysisUtils.loadWordSet
 
-object Train {
+object TrainNB {
   def main(args: Array[String]) {
     if (args.length == 0) {
-      System.err.println("Usage: " + this.getClass.getSimpleName + " <training file>")
+      System.err.println("Usage: " + this.getClass.getSimpleName + " <training file> <trained model save folder>")
       System.exit(1)
     }
 
     val conf = new SparkConf()
       .setMaster("local[2]")
-      .setAppName("Twitter Sentiment Trainer")
+      .setAppName("Twitter Sentiment Trainer with Naive Bayes classifier")
     val sc = new SparkContext(conf)
-
-    val stopWords = sc.broadcast(loadWordSet("/wordsets/stop-words.txt")).value
 
     // Load the labeled training data
     val rawData = sc.textFile(args(0))
@@ -30,19 +27,18 @@ object Train {
     val data = rawData.filter(x => x != header)
 
     // Split data between training and testing data
-    val splitData = data.randomSplit(Array(0.8, 0.2), 11L)
-    val training = splitData(0)
-    val test = splitData(1)
+    val splits = data.randomSplit(Array(0.8, 0.2))
+    val (trainingData, testData) = (splits(0), splits(1))
 
-    val training_labeled = training.map(x => toLabels(x)).
+    val trainingLabeledData = trainingData.map(x => toLabels(x)).
       map(t => (t._1, featurize(t._2))).
       map(x => new LabeledPoint((x._1).toDouble, x._2))
 
     println("\n====== Training ======\n")
-    val model = time {NaiveBayes.train(training_labeled, 1.0)}
+    val model = time {NaiveBayes.train(trainingLabeledData, 1.0)}
 
     println("\n====== Testing ======\n")
-    val testing_labeled = test.map(x => toLabels(x)).
+    val testingLabeledData = testData.map(x => toLabels(x)).
       map(t => (t._1, featurize(t._2), t._2)).
       map(x => {
         val lp = new LabeledPoint((x._1).toDouble, x._2)
@@ -50,17 +46,17 @@ object Train {
       })
 
     val predictAndLabel = time {
-      testing_labeled.map(p => {
+      testingLabeledData.map(p => {
         val labeledPoint = p._1
         val text = p._2
         val features = labeledPoint.features
-        val actual_label = labeledPoint.label
-        val predicted_label = model.predict(features)
-        (actual_label, predicted_label, text)
+        val actualLabel = labeledPoint.label
+        val predictedLabel = model.predict(features)
+        (actualLabel, predictedLabel, text)
       })
     }
 
-    val accuracy = 1.0 * predictAndLabel.filter(x => x._1 == x._2).count() / test.count()
+    val accuracy = 1.0 * predictAndLabel.filter(x => x._1 == x._2).count() / testData.count()
 
     println("Training and testing complete. Accuracy = " + accuracy)
     println("\nSome predictions:\n")
@@ -113,7 +109,7 @@ object Train {
     val t0 = System.nanoTime()
     val result = block
     val t1 = System.nanoTime()
-    println("Elapsed time: " + (t1 - t0)/1000 + "ms")
+    println("Elapsed time: " + (t1 - t0)/1000000 + " ms")
     result
   }
 }

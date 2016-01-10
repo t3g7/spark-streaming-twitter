@@ -1,4 +1,4 @@
-package ml
+package ml.naivebayes
 
 import org.apache.spark.SparkConf
 import org.apache.spark.mllib.classification.NaiveBayesModel
@@ -6,7 +6,7 @@ import org.apache.spark.streaming.twitter.TwitterUtils
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import utils.TwitterSettings
 
-object PredictFromStream {
+object PredictFromStreamNB {
   def main(args: Array[String]) {
     if (args.length == 0) {
       System.err.println("Usage: " + this.getClass.getSimpleName + " --consumerKey <consumer key> --consumerSecret <consumer secret> --accessToken <access token> --accessTokenSecret <access token secret> <trainedModel directory>")
@@ -18,7 +18,7 @@ object PredictFromStream {
 
     val conf = new SparkConf()
       .setMaster("local[2]")
-      .setAppName("TwitterStreaming Sentiment Prediction")
+      .setAppName("TwitterStreaming Sentiment Prediction with Naive Bayes classifier")
     val ssc = new StreamingContext(conf, Seconds(5))
 
     // Select some words, accounts or hashtags to stream
@@ -35,9 +35,9 @@ object PredictFromStream {
     val statuses = tweets.map(_.getText)
 
     val model = NaiveBayesModel.load(ssc.sparkContext, trainedModelDir.toString)
-    val labeled_statuses = statuses.map(t => (t, model.predict(Train.featurize(t))))
+    val labeledStatuses = statuses.map(t => (t, model.predict(TrainNB.featurize(t))))
 
-    labeled_statuses.print()
+    labeledStatuses.print()
 
     ssc.start()
     ssc.awaitTermination()
