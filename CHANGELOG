@@ -1,15 +1,21 @@
 Version 0.4
 ---------------------
+10/01/16 : - Add Random Forest algorithm to ml package
+           - Move Naive Bayes classification to ml.naivebayes
+             and Random Forest to ml.randomforest
+
+04/01/16 : - Update retweet count for already streamed tweets in
+             RetweetCount.scala
+
 30/12/15 : - Added Train and PredictFromStream objects for sentiment
              analysis with machine learning (ml package)
 
-Version 0.3
----------------------
-27/12/15 : v0.3.2
-           - Moved TwitterSettings to utils package
+27/12/15 : - Moved TwitterSettings to utils package
            - Moved setUpCassandra() to setUp() in utils.CassandraSettings
            - Wrote documentation for each function
 
+Version 0.3
+---------------------
 25/12/15 : v0.3.1
            - Removed unused dependency (models from edu.stanford.nlp)
            - Add the possibility to pass Twitter API credentials as args
