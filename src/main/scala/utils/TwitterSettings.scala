@@ -11,7 +11,7 @@ object TwitterSettings {
     * Set Twitter API credentials in src/main/resources/twitter_credentials.txt
     */
   def setTwitterCredentialsFromFile() = {
-    val file = getClass().getResourceAsStream("twitter_credentials.txt")
+    val file = getClass().getResourceAsStream("/twitter_credentials.txt")
     for (line <- fromInputStream(file).getLines()) {
       val key :: value :: _ = line.replace(" ","").split("=").toList
       val fullKey = "twitter4j.oauth." + key;
