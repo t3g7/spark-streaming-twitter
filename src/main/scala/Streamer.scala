@@ -1,13 +1,13 @@
 import java.text.SimpleDateFormat
-import org.joda.time.DateTime
-
-import com.datastax.spark.connector.streaming._
-import com.datastax.spark.connector.SomeColumns
-import org.apache.spark.streaming.{Seconds, StreamingContext}
-import org.apache.spark.streaming.twitter.TwitterUtils
+import java.util.Calendar
 
 import ResponseTime.getResponseTime
 import RetweetCount.updateRetweetCount
+import com.datastax.spark.connector.SomeColumns
+import com.datastax.spark.connector.streaming._
+import org.apache.spark.streaming.{Seconds, StreamingContext}
+import org.apache.spark.streaming.twitter.TwitterUtils
+import org.joda.time.DateTime
 import utils.SentimentAnalysisUtils._
 
 class Streamer extends Serializable {
@@ -24,7 +24,7 @@ class Streamer extends Serializable {
     val filters = Seq("orange", "orange_france", "sosh", "sosh_fr", "orange_conseil")
 
     // Filter out tweets containing off topic words or hashtags
-    val offTopicWords = Seq("jus", "juice", "alert", "alerte", "OINTB", "#OINTB", "black", "vigilance")
+    val offTopicWords = Seq("jus", "juice", "alert", "alerte", "OINTB", "#OINTB", "black", "vigilance", "canard")
     val offTopicHashtags = Seq("#alert", "#alerte", "#vigilance", "#OINTB", "OrangeIsTheNewBlack")
     val offTopicFilters = offTopicWords ++ offTopicHashtags
 
@@ -87,16 +87,13 @@ class Streamer extends Serializable {
     val trending60 = hashtags
       .map((_, 1))
       .reduceByKeyAndWindow(_ + _, Seconds(60))
-      .map{case (topic, count) => (count, topic)}
-      .transform(_.sortByKey(false))
+      .map { case (hashtag, count) => (
+          timestampFormatByMinute.format(Calendar.getInstance().getTime()),
+          Map[String, Int](hashtag -> count)
+        )
+      }
 
-    trending60.foreachRDD(rdd => {
-      val top10 = rdd.take(10)
-
-      // TO DO: saveToCassandra()
-      println("\nTrending topics in the last minute (%s total):".format(rdd.count()))
-      top10.foreach{case (count, hashtag) => println("%s (%s tweets)".format(hashtag, count))}
-    })
+    trending60.saveToCassandra("twitter_streaming", "trends", SomeColumns("date", "hashtags"))
 
     ssc.checkpoint("./checkpoint")
     ssc.start()
