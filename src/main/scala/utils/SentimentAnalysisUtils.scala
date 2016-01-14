@@ -12,6 +12,12 @@ object SentimentAnalysisUtils {
 
   val tokenizerFactory = FrenchTokenizer.ftbFactory()
 
+  /**
+    * Tokenize a tweet text and filter out stop words
+    * @param content
+    * @param stopWords
+    * @return a sequence of tokens
+    */
   def tokenize(content: String, stopWords: Set[String]): Seq[String] = {
     val stringReader = new StringReader(content)
     val tokenizer = tokenizerFactory.getTokenizer(stringReader)
@@ -28,12 +34,23 @@ object SentimentAnalysisUtils {
     tokens
   }
 
+  /**
+    * Load a newline-separated words set from a text file
+    * @param path
+    * @return a set of words
+    */
   def loadWordSet(path: String) = {
     val stream: InputStream = getClass.getResourceAsStream(path)
     val lines = fromInputStream(stream).getLines
     lines.toSet
   }
 
+  /**
+    * Compute the weight of a tweet by finding a token in a words set
+    * @param tokens
+    * @param wordSet
+    * @return an integer value
+    */
   def countWeight(tokens: Seq[String], wordSet: Set[String]): Int = {
     var weight = 0
     for (token <- tokens) {
@@ -45,6 +62,11 @@ object SentimentAnalysisUtils {
     weight
   }
 
+  /**
+    * Compute a sentiment based on the weight of the tweet
+    * @param text
+    * @return a SENTIMENT_TYPE string in {NEGATIVE, NEUTRAL, POSITIVE}
+    */
   def detectSentiment(text: String): SENTIMENT_TYPE = {
 
     val posWordsSet = loadWordSet("/wordsets/pos-words.txt")
@@ -71,10 +93,7 @@ object SentimentAnalysisUtils {
   }
 
   trait SENTIMENT_TYPE
-  case object VERY_NEGATIVE extends SENTIMENT_TYPE
   case object NEGATIVE extends SENTIMENT_TYPE
   case object NEUTRAL extends SENTIMENT_TYPE
   case object POSITIVE extends SENTIMENT_TYPE
-  case object VERY_POSITIVE extends SENTIMENT_TYPE
-  case object NOT_UNDERSTOOD extends SENTIMENT_TYPE
 }

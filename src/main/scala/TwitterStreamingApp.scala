@@ -1,21 +1,11 @@
-import com.datastax.spark.connector.cql.CassandraConnector
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.spark.{SparkConf, SparkContext}
+import utils._
 
 /**
  * Set Twitter credentials in src/main/resources/twitter_credentials.txt
  *
- * or export as environment variables: !!! TO DO !!!
- *    export TWITTER_CONSUMER_KEY="value"
- *    export TWITTER_CONSUMER_SECRET="value"
- *    export TWITTER_ACCESS_TOKEN="value"
- *    export TWITTER_ACCESS_TOKEN_SECRET="value"
- *
- * or pass them as -D system properties:
- *    -Dtwitter4j.oauth.consumerKey="value"
- *    -Dtwitter4j.oauth.consumerSecret="value"
- *    -Dtwitter4j.oauth.accessToken="value"
- *    -Dtwitter4j.oauth.accessTokenSecret="value"
+ * or pass them as arguments, see usage
  *
  * Tweets are saved to a Cassandra instance. To verify persisted data with cqlsh:
  * cqlsh> SELECT * FROM twitter_streaming.tweets
@@ -33,55 +23,19 @@ object TwitterStreamingApp {
   val ssc = new StreamingContext(sc, Seconds(5))
 
   def main(args: Array[String]): Unit = {
-    setUpCassandra()
+    CassandraSettings.setUp(conf)
 
     // Set Twitter credentials
     if (args.length == 0) {
       TwitterSettings.setTwitterCredentialsFromFile()
     } else if (args.length < 4) {
-      System.err.println("Usage: TwitterStreamingApp <consumer key> <consumer secret> <access token> <access token secret> \n       Or set credentials in text file")
+      System.err.println("Usage: TwitterStreamingApp --consumerKey <consumer key> --consumerSecret <consumer secret> --accessToken <access token> --accessTokenSecret <access token secret> \n       Or set credentials in text file")
       System.exit(1)
     } else {
-      val Array(consumerKey, consumerSecret, accessToken, accessTokenSecret) = args.take(4)
-      TwitterSettings.setTwitterCredentialsFromArgs(consumerKey, consumerSecret, accessToken, accessTokenSecret)
+      TwitterSettings.setTwitterCredentialsFromArgs(args)
     }
 
     val stream = new Streamer
     stream.start(ssc, "twitter_streaming", "tweets");
-  }
-
-  /**
-   * Creates the keyspace and table schema for tweets
-   */
-  def setUpCassandra(): Unit = {
-    CassandraConnector(conf).withSessionDo { session =>
-      session.execute("CREATE KEYSPACE IF NOT EXISTS twitter_streaming WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor': 1}")
-      session.execute("""
-        CREATE TABLE IF NOT EXISTS twitter_streaming.tweets (
-          body text,
-          user_id bigint,
-          user_screen_name text,
-          lang text,
-          created_at timestamp,
-          favorite_count int,
-          retweet_count int,
-          tweet_id bigint,
-          user_mentions list<text>,
-          reply_id bigint,
-          response_time text,
-          hashtags list<text>,
-          urls list<text>,
-          sentiment text,
-          PRIMARY KEY (body, user_id, tweet_id, user_screen_name, sentiment)
-        )"""
-      )
-      session.execute("""
-        CREATE TABLE IF NOT EXISTS twitter_streaming.freq (
-          date timestamp,
-          count counter,
-          PRIMARY KEY (date)
-        )"""
-      )
-    }
   }
 }
