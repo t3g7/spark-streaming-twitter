@@ -11,7 +11,8 @@ object CassandraSettings {
     */
   def setUp(conf: SparkConf): Unit = {
     CassandraConnector(conf).withSessionDo { session =>
-      session.execute("CREATE KEYSPACE IF NOT EXISTS twitter_streaming WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor': 1}")
+      session.execute("CREATE KEYSPACE IF NOT EXISTS twitter_streaming WITH REPLICATION = {'class': 'SimpleStrategy', 'replication_factor': 3}")
+
       session.execute("""
         CREATE TABLE IF NOT EXISTS twitter_streaming.tweets (
           body text,
@@ -31,10 +32,24 @@ object CassandraSettings {
           PRIMARY KEY (user_id, tweet_id)
         )"""
       )
+
+      session.execute("CREATE INDEX IF NOT EXISTS ON twitter_streaming.tweets(user_id);")
+      session.execute("CREATE INDEX IF NOT EXISTS ON twitter_streaming.tweets(tweet_id);")
+      session.execute("CREATE INDEX IF NOT EXISTS ON twitter_streaming.tweets(sentiment);")
+      session.execute("CREATE INDEX IF NOT EXISTS ON twitter_streaming.tweets(user_screen_name);")
+
       session.execute("""
         CREATE TABLE IF NOT EXISTS twitter_streaming.freq (
           date timestamp,
           count counter,
+          PRIMARY KEY (date)
+        )"""
+      )
+
+      session.execute("""
+        CREATE TABLE IF NOT EXISTS twitter_streaming.trends (
+          date timestamp,
+          hashtags map<text, int>,
           PRIMARY KEY (date)
         )"""
       )
