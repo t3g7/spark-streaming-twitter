@@ -16,9 +16,9 @@ object TwitterStreamingApp {
 
   // Set Spark configuration and context
   val conf = new SparkConf()
-    .setMaster("local[2]")
     .setAppName("TwitterStreamingApp")
-    .set("spark.cassandra.connection.host", "localhost")
+    .setMaster("spark://master:7077")
+    .set("spark.cassandra.connection.host", "Swarm node 1 IP,Swarm node 2 IP,Swarm node 3 IP")
   val sc = new SparkContext(conf)
   val ssc = new StreamingContext(sc, Seconds(5))
 

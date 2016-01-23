@@ -33,8 +33,8 @@ object CassandraSettings {
         )"""
       )
 
-      session.execute("CREATE INDEX IF NOT EXISTS ON twitter_streaming.tweets(user_id);")
-      session.execute("CREATE INDEX IF NOT EXISTS ON twitter_streaming.tweets(tweet_id);")
+      //session.execute("CREATE INDEX IF NOT EXISTS ON twitter_streaming.tweets(user_id);")
+      //session.execute("CREATE INDEX IF NOT EXISTS ON twitter_streaming.tweets(tweet_id);")
       session.execute("CREATE INDEX IF NOT EXISTS ON twitter_streaming.tweets(sentiment);")
       session.execute("CREATE INDEX IF NOT EXISTS ON twitter_streaming.tweets(user_screen_name);")
 

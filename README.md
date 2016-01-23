@@ -24,3 +24,13 @@ From the ```$SPARK_HOME``` folder, run the following:
     ./bin/spark-submit --class TwitterStreamingApp $PATH_TO_JAR/spark-streaming-twitter-assembly-$VERSION.jar
     
 or add arguments `<consumer key> <consumer secret> <access token> <access token secret>` at runtime.
+
+## Run the app on a Docker Swarm cluster
+
+Deploy the Spark - Cassandra cluster with [t3g7/deployer](https://github.com/t3g7/deployer).
+
+Then get Swarm nodes IPs with `docker-machine ip swarm-node-{1,2,3}` and replace `"Swarm node 1 IP,Swarm node 2 IP,Swarm node 3 IP"` with them as `spark.cassandra.connection.host` in `TwitterStreamingApp.scala`.
+
+Copy the jar in `t3g7/deployer/data` and run it:
+
+    docker exec -it swarm-master/master /usr/local/spark/bin/spark-submit --class TwitterStreamingApp --master spark://master:7077 /usr/local/spark/data/spark-streaming-twitter-assembly-$VERSION.jar --consumerKey <consumer key>  --consumerSecret <consumer secret> --accessToken <access token> --accessTokenSecret <access token secret>
