@@ -1,3 +1,7 @@
+Version 1.0
+---------------------
+23/01/16 : - Changed configuration to run on a cluster
+
 Version 0.5
 ---------------------
 14/01/16 : - Get trending hashtags from tweets streamed the previous

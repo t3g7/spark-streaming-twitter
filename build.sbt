@@ -1,7 +1,7 @@
 lazy val root = (project in file(".")).
   settings(
     name := "spark-streaming-twitter",
-    version := "0.5",
+    version := "1.0",
     scalaVersion := "2.10.4",
     mainClass in Compile := Some("TwitterStreamingApp")
   )
